@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Document   : LessonTimetableView
+    Created on : 05-Jan-2018, 21:48:51
+    Author     : junaid
+-->
+<jsp:root xmlns="http://www.w3.org/1999/xhtml"
+          xmlns:jsp="http://java.sun.com/JSP/Page"
+          xmlns:c="http://java.sun.com/jsp/jstl/core"
+          xmlns:f="http://java.sun.com/jsp/jstl/fmt"
+          version="2.0">
+
+    <jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+    <jsp:element name="text">
+        <jsp:attribute name="lang">EN</jsp:attribute>
+        <head>
+            <jsp:include page="libraries.html" />
+            <jsp:include page="fullcalendarlibraries.html" />
+            <script type='text/javascript'>
+
+                $(document).ready(function () {
+                    /**
+                     * Render a fullCalendar calendar using the lesson calendar.
+                     * The documentation for this can be found here: https://fullcalendar.io/docs/
+                     */
+                               
+                    // The earliest date is used to determine the start date of the calendar
+                    var earliestLessonDate = '<c:out value="${applicationScope.availableLessons.earliestLessonDate}" />';
+
+                    // Output all the needed data from the lessons collection into an array of JSON
+                    // objects which will be used to populate the calendar
+                    var lessons = [
+                        <c:forEach var="lesson" items="${applicationScope.availableLessons.lessons}">
+                            {
+                                title: '<c:out value="${lesson.value.description}"/>',
+                                start: '<c:out value="${lesson.value.date}"/>' + ' ' + '<c:out value="${lesson.value.startTime}" />',
+                                end: '<c:out value="${lesson.value.date}"/>' + ' ' + '<c:out value="${lesson.value.endTime}" />',
+                                allDay: false
+                            },
+                        </c:forEach>
+                    ];
+                    
+                    // Render the calendar
+                    $('#calendar').fullCalendar({
+                        header: {
+                            center: 'title'
+                        },
+                        editable: false,
+                        defaultDate: moment(earliestLessonDate),
+                        events: lessons,
+                        displayEventEnd: true
+                    });
+                });
+            </script>
+
+            <title>Lesson Calendar</title>
+        </head>
+        <jsp:body>
+            <jsp:include page="header.jspx" />
+            <div id='calendar'></div>
+        </jsp:body>
+    </jsp:element>
+
+</jsp:root>

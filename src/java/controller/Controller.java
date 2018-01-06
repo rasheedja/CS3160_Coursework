@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import model.Lesson;
 import model.LessonSelection;
 
 import model.LessonTimetable;
@@ -140,6 +141,10 @@ public class Controller extends HttpServlet {
                     lessonSelection.removeLesson(lessonID);
 
                     dispatcher = this.getServletContext().getRequestDispatcher("/LessonSelectionView.jspx");
+                    
+                } else if (action.equals("/lessonCalendar")) {
+                    dispatcher = this.getServletContext().getRequestDispatcher("/LessonCalendar.jspx");
+
                 } else if (action.equals("/logOut")) {
                     // Invalidate the users session and redirect them to the login page
                     session.invalidate();

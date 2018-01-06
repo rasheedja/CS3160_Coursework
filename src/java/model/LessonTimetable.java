@@ -13,6 +13,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -106,6 +109,41 @@ public class LessonTimetable {
         
         return this.lessons;
         
+    }
+    
+    /**
+     * Get the earliest date from the lessons in the database. If there are no
+     * lessons in the database, return todays date
+     * 
+     * @return String A date in the format 'YYYY-mm-dd
+     */
+    public String getEarliestLessonDate() {
+        // Learnt about DateFormat from http://www.mkyong.com/java/java-how-to-get-current-date-time-date-and-calender/
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Connection connection = ds.getConnection();
+            try {
+                if (connection != null) {
+                    PreparedStatement pstmt = connection.prepareStatement("SELECT startDateTime FROM lessons ORDER BY startDateTime LIMIT 1");
+                    rs = pstmt.executeQuery();
+
+                    if (rs.next()) {
+                        Timestamp earliestLessonDate = rs.getTimestamp(1);
+                        return dateFormat.format(earliestLessonDate);
+                    } else {
+                        // If there are no lessons in the databse, return todays date
+                        return dateFormat.format(new Date());
+                    }
+                }
+
+            } catch (SQLException e) {
+                System.out.println("Exception is ;" + e + ": message is " + e.getMessage());
+            }
+        } catch (Exception e) {
+            System.out.println("Exception is ;" + e + ": message is " + e.getMessage());
+        }
+        // Return todays date If there are errors
+        return dateFormat.format(new Date());
     }
     
 }
