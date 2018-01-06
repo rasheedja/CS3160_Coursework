@@ -69,8 +69,8 @@ public class LessonSelection  {
                     // and add it to this collection (use 'LessonSelection.addLesson()' )
                     
                 }
-
-            }catch(SQLException e) {
+// CHANGE TO SQLEXCEPTION
+             } catch (Exception e) {
 
                 System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
             }

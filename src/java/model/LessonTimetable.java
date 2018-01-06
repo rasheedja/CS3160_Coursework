@@ -8,9 +8,11 @@ package model;
 import java.util.HashMap;
 import java.util.Map;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -54,12 +56,27 @@ public class LessonTimetable {
              try {
 
                 if (connection != null) {
-                    
-                    // TODO instantiate and populate the 'lessons' HashMap by selecting the relevant infromation from the database
-                  
                     lessons = new HashMap<String, Lesson>();
-            
-                    // TODO add code here to retrieve the infromation and create the new Lesson objects
+                    
+                    /**
+                     * Retrieve all the lessons from the database and then
+                     * create lesson objects using the resulting data.
+                     * Store these lesson objects into the lessons HashMap
+                     */
+                    PreparedStatement pstmt = connection.prepareStatement("SELECT lessonid, description, level, startDateTime, endDateTime FROM lessons");
+                    rs = pstmt.executeQuery();
+                    Lesson lesson;
+                    
+                    while (rs.next()) {
+                        String lessonID = rs.getString(1);
+                        String description = rs.getString(2);
+                        int level = rs.getInt(3);
+                        Timestamp startTime = rs.getTimestamp(4);
+                        Timestamp endTime = rs.getTimestamp(5);
+                        
+                        lesson = new Lesson(description, startTime, endTime, level, lessonID);
+                        lessons.put(lessonID, lesson);
+                    }
                 }
 
             }catch(SQLException e) {

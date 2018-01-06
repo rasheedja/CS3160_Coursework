@@ -46,16 +46,26 @@ public class Users {
         try {
             
             Connection connection = ds.getConnection();
-
+            System.out.println(connection);
             if (connection != null) {
-
-               //TODO: implement this method so that if the user does not exist, it returns -1.
-               // If the username and password are correct, it should return the 'clientID' value from the database.
-                
-  
-
-            }
-            else {
+               /**
+                * Check the database if the username and password combination is
+                * correct. If it is, return the clientID value for the user. If not,
+                * return -1. A PreparedStatement Object is used to protect 
+                * against SQL injection.
+                */
+               
+               pstmt = connection.prepareStatement("SELECT * FROM clients WHERE username = ? AND password = ?");
+               pstmt.setString(1, name);
+               pstmt.setString(2, pwd);
+               rs = pstmt.executeQuery();
+               
+               if (rs.next()) {
+                   return rs.getInt(1); // Return the first field, i.e. the clentID
+               } else {
+                   return -1;
+               }
+            } else {
                 return -1;
             }
         } catch(SQLException e) {

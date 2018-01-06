@@ -10,23 +10,57 @@
 
 <html>
     <head>
-       
+        <link rel="stylesheet" type="text/css" href="/coursework/libraries/bootstrap/css/bootstrap.min.css" />
+        <script type="text/javascript" src="/coursework/libraries/jquery/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="/coursework/libraries/bootstrap/js/bootstrap.bundle.min.js"></script>
         <title>Login / signup page</title>
     </head>
     <body>
-        <h2>Please log in!</h2>
-              <form method="POST" action="http://localhost:8084/coursework/do/login">
-                Username:<input type="text" name="username" value="" />----
-                Password:<input type="password" name="password" value="" />        
-        <input type="submit" value="Click to log in" />
-        </form>
-        
-        <form method="POST" action="http://localhost:8084/coursework/do/addUser">
-            <h2> Don't yet have an account? </h2>
-            Username:<input type="text" name="newUsername" value="" />----
-                Password:<input type="password" name="newPassword" value="" />      
-            <input type="submit" value="Sign up as a new user"/>
-        </form>
-        
+        <header class="jumbotron jumbotron-fluid bg-dark text-light">
+            <div class="container">
+                <h1 class="text-center">Aston Snowdome</h1>
+            </div>
+        </header>
+        <main>
+            <div class="container">
+                <div class="row">
+                    <form class="col-sm-6" method="POST" action="/coursework/do/login">
+                        <div class="card">
+                            <h2 class="card-header">Please log in!</h2>
+                            <div class="card-body">
+                                <div class="form-group col-sm-12">
+                                    <label for="username">Username</label>
+                                    <input type="text" name="username" class="form-control" placeholder="Username" />
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <label for="password">Password</label>
+                                    <input type="password" name="password" class="form-control" placeholder="Password" />      
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <input type="submit" class="btn btn-primary" value="Click to log in" />
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <form class="col-sm-6" method="POST" action="/coursework/do/addUser">
+                        <div class="card">
+                        <h2 class="col-sm-12 card-header"> Don't yet have an account? </h2>
+                        <div class="card-body">
+                            <div class="form-group col-sm-12">
+                                <label for="newUsername">Username</label>
+                                <input type="text" name="newUsername" class="form-control" placeholder="Username"/>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label for="newPassowrd">Password</label>
+                                <input type="password" name="newPassword" class="form-control" placeholder="Password" />      
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <input type="submit" class="btn btn-primary" value="Sign up as a new user"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
     </body>
 </html>
