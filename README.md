@@ -11,3 +11,6 @@ Instructions are for Ubuntu 16.04
 - `CREATE USER 'rasheeja'@'localhost' IDENTIFIED BY 'mome34show';`
 - `GRANT ALL PRIVILEGES ON *.* TO 'rasheeja'@'localhost'`
 - Import `coursework_db_2017_modified.sql` using the command line or a GUI of your choice
+
+## Sections Completed
+I have completed all optional and compulsory sections. I created a calendar using the fullCalendar library for the last task.
