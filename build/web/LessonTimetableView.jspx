@@ -26,9 +26,10 @@
                     <table class="table table-striped">
                         <thead class="thead-dark">
                             <tr>
-                                <th scope="col">Lesson ID</th>
-                                <th scope="col">Lesson Description</th>
-                                <th scope="col">Lesson Level</th>
+                                <th scope="col">ID</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Level</th>
+                                <th scope="col">Date</th>
                                 <th scope="col">Start Time</th>
                                 <th scope="col">End Time</th>
                                 <th scope="col"></th>
@@ -37,14 +38,22 @@
                         <tbody>
                         <c:forEach var="lesson" items="${applicationScope.availableLessons.lessons}">
                             <form method="POST" action="chooseLesson">
-                                <input type="hidden" value="${lesson.key}" />
+                                <input type="hidden" name="lessonID" value="${lesson.key}" />
                                 <tr>
                                     <th scope="row"><c:out value="${lesson.key}"/></th>
                                     <td><c:out value="${lesson.value.description}"/></td>
                                     <td><c:out value="${lesson.value.level}"/></td>
+                                    <td><c:out value="${lesson.value.date}"/></td>
                                     <td><c:out value="${lesson.value.startTime}"/></td>
                                     <td><c:out value="${lesson.value.endTime}"/></td>
-                                    <td><input type="submit" value="Select Lesson" class="btn btn-dark" /></td>
+                                    <c:choose>
+                                        <c:when test="${sessionScope.lessonSelection.numChosen lt 3}">
+                                            <td><input type="submit" value="Select Lesson" class="btn btn-dark" /></td>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <td><input type="submit" value="Select Lesson" class="btn btn-dark" disabled="true" /></td>
+                                        </c:otherwise>
+                                </c:choose>
                                 </tr>
                             </form>
                         </c:forEach>

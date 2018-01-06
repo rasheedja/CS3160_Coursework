@@ -11,7 +11,7 @@
         <jsp:body>
             <p>
             <form method="POST" action="finaliseBooking">
-                <input type="submit" value="Finalise My Booking!"/>
+                <input type="submit" value="Finalise My Booking!" class="btn btn-primary"/>
             </form>
             </p>
         </jsp:body>

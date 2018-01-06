@@ -77,32 +77,53 @@ public class Users {
         
     }
     
-    // TODO (Optional steps 3 and 4) add a user with specified username and password
-    public void addUser(String name, String pwd) {
-       
-        //TODO: implement this method so that the specified username and password are inserted into the database.
-
-         try {
-            
+    public boolean addUser(String name, String pwd) {
+        try {
             Connection connection = ds.getConnection();
-
             if (connection != null) {
                 
-                pstmt = connection.prepareStatement("INSERT INTO clients ( username, password) VALUES (?,?)");
+                pstmt = connection.prepareStatement("INSERT INTO clients (username, password) VALUES (?,?)");
                 pstmt.setString(1, name);
                 pstmt.setString(2, pwd);
 
-                pstmt.executeUpdate();
+                int success = pstmt.executeUpdate();
 
-                // todo check success
-            
+                // Success is 1 if a row was updated, and 0 if not
+                if (success == 1) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
-            
-         }
-            catch(SQLException e) {
+        } catch(SQLException e) {
                 System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
-               
-         }
-        
+               return false;
+        }
+        return false;
+    }
+    
+    /**
+     * Check if the given name exists in the database
+     * 
+     * @param name The name to check
+     * @return True if the name exists, False otherwise
+     */
+    public boolean doesNameExist(String name) {
+        try {
+            Connection connection = ds.getConnection();
+            if (connection != null) {
+                pstmt = connection.prepareStatement("SELECT * FROM clients WHERE username = ?");
+                pstmt.setString(1, name);
+                rs = pstmt.executeQuery();
+                
+                // If the result returns any data, the username exists in the database
+                return rs.next();
+
+            }
+        } catch (SQLException e) {
+            System.out.println("Exception is ;" + e + ": message is " + e.getMessage());
+            return false;
+        }
+        return false;
     }
 }

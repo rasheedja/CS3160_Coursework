@@ -5,6 +5,8 @@
 package controller;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -49,6 +51,7 @@ public class Controller extends HttpServlet {
         // Get the context path which is used to determine the action to perform
         String action = request.getPathInfo();
         RequestDispatcher dispatcher = null;
+        boolean forwardRequest = true;
         
         if (action.equals("/login")) {
             String username = request.getParameter("username");
@@ -72,6 +75,24 @@ public class Controller extends HttpServlet {
             } else {
                 dispatcher = this.getServletContext().getRequestDispatcher("/login.jsp");
             }
+        } else if (action.equals("/newUser")) {
+            // Create a user with the given username and password
+            String username = request.getParameter("newUsername");
+            String password = request.getParameter("newPassword");
+            users.addUser(username, password);
+            dispatcher = this.getServletContext().getRequestDispatcher("/login.jsp");
+        } else if (action.equals("/checkName")) {
+            String username = request.getParameter("username");
+            boolean exists = users.doesNameExist(username);
+            
+            String responseData = "{\"nameExists\": \"" + String.valueOf(exists) + "\"}";
+            
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(responseData);
+            
+            // Ensure that the request is not forwarded
+            forwardRequest = false;
         } else {
             HttpSession session = request.getSession(false);
             /**
@@ -82,18 +103,59 @@ public class Controller extends HttpServlet {
              */
             if (session == null || (session.getAttribute("lessonSelection") == null) || session.getAttribute("name") == null) {
                 dispatcher = this.getServletContext().getRequestDispatcher("/login.jsp");
-            }
-            
-            if (action.equals("/viewTimetable")) {
-                dispatcher = this.getServletContext().getRequestDispatcher("/LessonTimetableView.jspx");
             } else {
-                // Redirect unrecognised actions to the login page
-                dispatcher = this.getServletContext().getRequestDispatcher("/login.jsp");
+                if (action.equals("/viewTimetable")) {
+                    dispatcher = this.getServletContext().getRequestDispatcher("/LessonTimetableView.jspx");
+               
+                } else if (action.equals("/chooseLesson")) {
+                    /**
+                     * When a user chooses a lesson, the lesson is stored in their
+                     * session and they are redirected to the LessonSelectionView.
+                     * If the user has already selected the lesson, no new entry is
+                     * added
+                     */
+                    String lessonID = request.getParameter("lessonID");
+                    LessonSelection lessonSelection = (LessonSelection) session.getAttribute("lessonSelection");
+
+                    // Only add the lesson if it has not already been selected
+                    if (lessonSelection.getLesson(lessonID) == null) {
+                        lessonSelection.addLesson(availableLessons.getLesson(lessonID));
+                    }
+
+                    dispatcher = this.getServletContext().getRequestDispatcher("/LessonSelectionView.jspx");
+           
+                } else if (action.equals("/viewSelection")) {
+                    dispatcher = this.getServletContext().getRequestDispatcher("/LessonSelectionView.jspx");
+                
+                } else if (action.equals("/finaliseBooking")) {
+                    // Update the database with the users selection and redirect them to the LessonTimetableView
+                    LessonSelection lessonSelection = (LessonSelection) session.getAttribute("lessonSelection");
+                    lessonSelection.updateBooking();
+                    dispatcher = this.getServletContext().getRequestDispatcher("/LessonTimetableView.jspx");
+                
+                } else if (action.equals("/cancelLesson")) {
+                    // Cancel the lesson selected by the user
+                    String lessonID = request.getParameter("lessonID");
+                    LessonSelection lessonSelection = (LessonSelection) session.getAttribute("lessonSelection");
+                    lessonSelection.removeLesson(lessonID);
+
+                    dispatcher = this.getServletContext().getRequestDispatcher("/LessonSelectionView.jspx");
+                } else if (action.equals("/logOut")) {
+                    // Invalidate the users session and redirect them to the login page
+                    session.invalidate();
+                    dispatcher = this.getServletContext().getRequestDispatcher("/login.jsp");
+                
+                } else {
+                    // Redirect unrecognised actions to the login page
+                    dispatcher = this.getServletContext().getRequestDispatcher("/login.jsp");
+                }
             }
         }
         
-        // Redirect the user to the chosen page
-        dispatcher.forward(request, response);
+        if (forwardRequest) {
+            // Redirect the user to the chosen page
+            dispatcher.forward(request, response);
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

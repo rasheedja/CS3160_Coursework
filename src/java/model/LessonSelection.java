@@ -6,9 +6,11 @@
 package model;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -50,37 +52,44 @@ public class LessonSelection  {
         
         // Connect to the database - this is a pooled connection, so you don't need to close it afterwards
         try {
-
             Connection connection = ds.getConnection();
-
-             try {
-
+            try {
                 if (connection != null) {
-                  
-                    // TODO get the details of any lessons currently selected by this user
-                    // One way to do this: create a join query which:
-                       // 1. finds rows in the 'lessons_booked' table which relate to this clientid
-                       // 2. links 'lessons' to 'lessons_booked' by 'lessonid
-                       // 3. selects all fields from lessons for these rows
+                    /**
+                     * Select all the lessons selected by the user using an
+                     * inner join on the lessons_booked lessonID and the lessons
+                     * lessonID where the lessons_booked clientID is equal to
+                     * the user's ID. The results are then added to the
+                     * chosenLessons HashMap.
+                     */
+                    PreparedStatement pstmt = connection.prepareStatement
+                        ("SELECT l.lessonid, l.description, l.level, l.startDateTime, l.endDateTime "
+                            + "FROM lessons l "
+                            + "INNER JOIN lessons_booked lb "
+                            + "ON lb.lessonid = l.lessonid "
+                            + "WHERE lb.clientid = ?");
+                    pstmt.setInt(1, this.ownerID);
+                    rs = pstmt.executeQuery();
                     
-                    // If you need to test your SQL syntax you can do this in virtualmin
-                    
-                    // For each one, instantiate a new Lesson object, 
-                    // and add it to this collection (use 'LessonSelection.addLesson()' )
-                    
+                    Lesson lesson;
+                    while (rs.next()) {
+                        String lessonID = rs.getString(1);
+                        String description = rs.getString(2);
+                        int level = rs.getInt(3);
+                        Timestamp startTime = rs.getTimestamp(4);
+                        Timestamp endTime = rs.getTimestamp(5);
+
+                        lesson = new Lesson(description, startTime, endTime, level, lessonID);
+                        chosenLessons.put(lessonID, lesson);
+                    }
                 }
-// CHANGE TO SQLEXCEPTION
-             } catch (Exception e) {
-
+            } catch (SQLException e) {
                 System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
             }
-        
-        
-            }catch(Exception e){
+        } catch (Exception e){
 
-                System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
-            }
-        
+            System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
+        }
     }
 
     /**
@@ -96,6 +105,10 @@ public class LessonSelection  {
         this.chosenLessons.put(l.getId(), i);
        
     }
+    
+    public void removeLesson(String lessonID) {
+        this.chosenLessons.remove(lessonID);
+    }
 
     public Lesson getLesson(String id){
         return this.chosenLessons.get(id);
@@ -109,23 +122,38 @@ public class LessonSelection  {
         return this.ownerID;
     }
     
+    /**
+     * This method removes all current bookings in the database made by the user
+     * and then updates the database with their current selection.
+     */
     public void updateBooking() {
-        
-        // A tip: here is how you can get the ids of any lessons that are currently selected
-        Object[] lessonKeys = chosenLessons.keySet().toArray();
-        for (int i=0; i<lessonKeys.length; i++) {
-                    
-              // Temporary check to see what the current lesson ID is....
-              System.out.println("Lesson ID is : " + (String)lessonKeys[i]);
+        try {
+            Connection connection = ds.getConnection();
+            try {
+                if (connection != null) {
+                    // Delete current selection from database
+                    PreparedStatement pstmt = connection.prepareStatement("DELETE FROM lessons_booked WHERE clientid = ?");
+                    pstmt.setInt(1, this.ownerID);
+                    pstmt.executeUpdate();
+
+                    // Prepare statement to add a lesson into the database
+                    pstmt = connection.prepareStatement("INSERT INTO lessons_booked(clientid, lessonid) VALUES (?, ?)");
+                    pstmt.setInt(1, this.ownerID);
+
+                    // Add each selected lesson into the database
+                    // The HashMap keys here correspond to the lessonID
+                    Object[] lessonKeys = chosenLessons.keySet().toArray();
+                    for (Object lessonKey : lessonKeys) {
+                        pstmt.setString(2, (String) lessonKey);
+                        pstmt.executeUpdate();
+                    }
+                }
+            } catch (SQLException e) {
+                System.out.println("Exception is ;" + e + ": message is " + e.getMessage());
+            }
+        } catch (Exception e) {
+            System.out.println("Exception is ;" + e + ": message is " + e.getMessage());
         }
-      
-        // TODO get a connection to the database as in the method above
-        // TODO In the database, delete any existing lessons booked for this user in the table 'lessons_booked'
-        // REMEMBER to use executeUpdate, not executeQuery
-        // TODO - write and execute a query which, for each selected lesson, will insert into the correct table:
-                    // the owner id into the clientid field
-                    // the lesson ID into the lessonid field
-       
         
     }
 

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Document   : LessonSelectionView
+    Created on : 06-Jan-2018, 14:37:00
+    Author     : junaid
+-->
+<jsp:root xmlns="http://www.w3.org/1999/xhtml"
+          xmlns:jsp="http://java.sun.com/JSP/Page"
+          xmlns:c="http://java.sun.com/jsp/jstl/core"
+          xmlns:f="http://java.sun.com/jsp/jstl/fmt"
+          version="2.0">
+
+    <jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+    <jsp:element name="text">
+        <jsp:attribute name="lang">EN</jsp:attribute>
+        <head>
+            <jsp:include page="libraries.html" />
+            <title>Lessons Selected</title>
+        </head>
+        <jsp:body>
+            <jsp:include page="header.jspx" />
+            <br />
+            <main class="container">
+                <div class="row tabel-responsive">
+                    <table class="table table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Level</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Start Time</th>
+                                <th scope="col">End Time</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <c:forEach var="lesson" items="${sessionScope.lessonSelection.items}">
+                            <form method="POST" action="cancelLesson">
+                                <input type="hidden" name="lessonID" value="${lesson.key}" />
+                                <tr>
+                                    <th scope="row"><c:out value="${lesson.key}"/></th>
+                                    <td><c:out value="${lesson.value.description}"/></td>
+                                    <td><c:out value="${lesson.value.level}"/></td>
+                                    <td><c:out value="${lesson.value.date}"/></td>
+                                    <td><c:out value="${lesson.value.startTime}"/></td>
+                                    <td><c:out value="${lesson.value.endTime}"/></td>
+                                    <td><input type="submit" value="Cancel Lesson" class="btn btn-danger" /></td>
+                                </tr>
+                            </form>
+                        </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+                <jsp:include page="footer.jspx" />
+            </main>
+        </jsp:body>
+    </jsp:element>
+
+</jsp:root>
